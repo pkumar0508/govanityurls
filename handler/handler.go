@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // govanityurls serves Go vanity URLs.
-package main
+package handler
 
 import (
 	"errors"
@@ -39,7 +39,7 @@ type pathConfig struct {
 	vcs     string
 }
 
-func newHandler(config []byte) (*handler, error) {
+func ParseYAML(config []byte) (*handler, error) {
 	var parsed struct {
 		Host     string `yaml:"host,omitempty"`
 		CacheAge *int64 `yaml:"cache_max_age,omitempty"`
@@ -143,7 +143,7 @@ func (h *handler) serveIndex(w http.ResponseWriter, r *http.Request) {
 func (h *handler) Host(r *http.Request) string {
 	host := h.host
 	if host == "" {
-		host = defaultHost(r)
+		return r.Host
 	}
 	return host
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package handler
 
 import (
 	"bytes"
@@ -99,9 +99,9 @@ func TestHandler(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		h, err := newHandler([]byte(test.config))
+		h, err := ParseYAML([]byte(test.config))
 		if err != nil {
-			t.Errorf("%s: newHandler: %v", test.name, err)
+			t.Errorf("%s: ParseYAML: %v", test.name, err)
 			continue
 		}
 		s := httptest.NewServer(h)
@@ -145,7 +145,7 @@ func TestBadConfigs(t *testing.T) {
 			"    repo: https://github.com/rakyll/portmidi\n",
 	}
 	for _, config := range badConfigs {
-		_, err := newHandler([]byte(config))
+		_, err := ParseYAML([]byte(config))
 		if err == nil {
 			t.Errorf("expected config to produce an error, but did not:\n%s", config)
 		}
@@ -237,10 +237,10 @@ func TestPathConfigSetFind(t *testing.T) {
 			want:  "/y",
 		},
 		{
-			paths: []string{"/example/helloworld", "/", "/y", "/foo"},
-			query: "/x/y/",
-			want:  "/",
-			subpath:  "x/y/",
+			paths:   []string{"/example/helloworld", "/", "/y", "/foo"},
+			query:   "/x/y/",
+			want:    "/",
+			subpath: "x/y/",
 		},
 		{
 			paths: []string{"/example/helloworld", "/y", "/foo"},
@@ -294,10 +294,10 @@ func TestCacheHeader(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		h, err := newHandler([]byte("paths:\n  /portmidi:\n    repo: https://github.com/rakyll/portmidi\n" +
+		h, err := ParseYAML([]byte("paths:\n  /portmidi:\n    repo: https://github.com/rakyll/portmidi\n" +
 			test.config))
 		if err != nil {
-			t.Errorf("%s: newHandler: %v", test.name, err)
+			t.Errorf("%s: ParseYAML: %v", test.name, err)
 			continue
 		}
 		s := httptest.NewServer(h)
